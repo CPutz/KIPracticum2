@@ -53,6 +53,7 @@
     <Compile Include="IGameState.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="MyBot.cs" />
+    <Compile Include="QLearning.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>
   <ItemGroup>
