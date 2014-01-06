@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YourBot {
+namespace Ants {
+    public enum Action { North, East, South, West, None };
+
     class QLearning {
         QValueSet store;
         Random random;
@@ -25,7 +27,7 @@ namespace YourBot {
             if (actions.Count > 0)
                 return actions[this.random.Next(actions.Count)];
 
-            return null;
+            return Action.None;
         }
     }
 
@@ -53,11 +55,21 @@ namespace YourBot {
         }
     }
 
-    class Action {
 
-    }
-
+    //1 2 3
+    //4   5
+    //6 7 8
     class State {
+        public uint Value { get; private set; }
 
+        public State(Tile[] tiles) {
+            uint mask = 7; //00000000 000 000 000 000 000 000 000 111
+                           //          8   7   6   5   4   3   2   1
+            this.Value = 0;
+
+            for (int i = 0; i < 8; ++i) {
+                this.Value |= ((uint)tiles[i] << (3 * i));
+            }
+        }
     }
 }
