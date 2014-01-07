@@ -107,6 +107,14 @@ namespace Ants {
 		/// <returns>The new location, accounting for wrap around.</returns>
 		Location GetDestination (Location location, Direction direction);
 
+        /// <summary>
+        /// Gets the destination if an ant at <paramref name="location"/> goes in <paramref name="direction"/>, accounting for wrap around.
+        /// </summary>
+        /// <param name="location">The starting location.</param>
+        /// <param name="direction">The direction to move.</param>
+        /// <returns>The new location, accounting for wrap around.</returns>
+        Location GetDestination(Location location, Location direction);
+
 		/// <summary>
 		/// Gets the distance between <paramref name="loc1"/> and <paramref name="loc2"/>.
 		/// </summary>

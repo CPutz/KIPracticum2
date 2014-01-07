@@ -1,27 +1,24 @@
 using System;
 namespace Ants {
-	public enum Tile { Ant, Enemy, Dead, Land, Food, Water, Unseen, Hill }
+	public enum Tile { Ant, Enemy, Food, Dead, Land, Water, Unseen, Hill }
 
     public static class TileExtensions {
 
-        /*public static char ToChar(this Tile self) {
+        public static QTile ToQTile(this Tile self) {
             switch (self) {
-                case Direction.East:
-                    return 'e';
+                case Tile.Ant:
+                    return QTile.Ant;
 
-                case Direction.North:
-                    return 'n';
+                case Tile.Enemy:
+                    return QTile.Enemy;
 
-                case Direction.South:
-                    return 's';
-
-                case Direction.West:
-                    return 'w';
+                case Tile.Food:
+                    return QTile.Food;
 
                 default:
-                    throw new ArgumentException("Unknown direction", "self");
+                    return QTile.None;
             }
-        }*/
+        }
     }
 }
 

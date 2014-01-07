@@ -93,12 +93,13 @@ namespace Ants {
 		}
 
 		public void AddAnt (int row, int col, int team) {
-			map[row, col] = Tile.Ant;
 			
 			Ant ant = new Ant(row, col, team);
 			if (team == 0) {
+                map[row, col] = Tile.Ant;
 				MyAnts.Add(ant);
 			} else {
+                map[row, col] = Tile.Enemy;
 				EnemyAnts.Add(ant);
 			}
 		}
@@ -182,6 +183,22 @@ namespace Ants {
 			
 			return new Location(row, col);
 		}
+
+        /// <summary>
+        /// Gets the destination if an ant at <paramref name="location"/> goes in <paramref name="direction"/>, accounting for wrap around.
+        /// </summary>
+        /// <param name="location">The starting location.</param>
+        /// <param name="direction">The direction to move.</param>
+        /// <returns>The new location, accounting for wrap around.</returns>
+        public Location GetDestination(Location location, Location direction) {
+            int row = (location.Row + direction.Row) % Height;
+            if (row < 0) row += Height; // because the modulo of a negative number is negative
+
+            int col = (location.Col + direction.Col) % Width;
+            if (col < 0) col += Width;
+
+            return new Location(row, col);
+        }
 
 		/// <summary>
 		/// Gets the distance between <paramref name="loc1"/> and <paramref name="loc2"/>.
