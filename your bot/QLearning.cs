@@ -4,18 +4,20 @@ using System.Collections;
 using System.IO;
 
 namespace Ants {
-    public enum Action { North = 0, East = 1, South = 2, West = 3, None = 4};
+    public enum Action { North = 0, South = 1, East = 2, West = 3, None = 4 };
 
     class QLearning {
         QValueSet store;
         Random random;
+
+
 
         public QLearning() {
             this.store = new QValueSet();
             this.random = new Random();
         }
 
-        public Action GetAction(State state, Problem problem, float alpha, float gamma, float rho) {
+        public Action GetAction(State state, float rho) {
 
             //List<Action> actions = problem.GetAvalaibleActions(state);
             List<Action> actions = new List<Action> { Action.North, Action.East, Action.South, Action.West, Action.None };
@@ -25,6 +27,18 @@ namespace Ants {
             else
                 return this.store.GetBestAction(state);
         }
+
+
+        public void ProcessReward(float reward, State oldState, State newState, Action action, float alpha, float gamma) {
+
+            float Q = store[oldState, action];
+            float maxQ = store[newState, store.GetBestAction(newState)];
+
+            Q = (1 - alpha) * Q + alpha * (reward + gamma * maxQ);
+
+            store[oldState, action] = Q;
+        }
+
 
         public Action PickRandomAction(List<Action> actions) {
             if (actions.Count > 0)
@@ -36,14 +50,14 @@ namespace Ants {
 
         public void LoadFile(string s) {
             FileStream fs = File.Open(s, FileMode.Open);
-            StreamReader sr = new StreamReader(fs);
+            BinaryReader br = new BinaryReader(fs);
 
 
-            State state = new State((uint)sr.Read());
+            State state = new State(br.ReadUInt32());
 
             QSetItem newItem = new QSetItem();
             foreach (Action a in Enum.GetValues(typeof(Action))) {
-                newItem[a] = (float)sr.Read();
+                newItem[a] = br.ReadSingle();
             }
 
             this.store.Add(state, newItem);
@@ -52,11 +66,29 @@ namespace Ants {
 
         public void SaveFile(string s) {
             FileStream fs = File.Open(s, FileMode.CreateNew);
-            StreamWriter sw = new StreamWriter(fs);
+            BinaryWriter bw = new BinaryWriter(fs);
 
-            //foreach (QSetItem q
+            Hashtable set = store.set;
+            foreach (State state in set.Keys) {
+                QSetItem item = (QSetItem)set[state];
+                
+                bw.Write(state.Value);
+
+                bw.Write(item[Action.North]);
+                bw.Write(item[Action.East]);
+                bw.Write(item[Action.South]);
+                bw.Write(item[Action.West]);
+                bw.Write(item[Action.None]);
+            }
         }
     }
+
+
+    struct StateAction {
+        public State State { get; set; }
+        public Action Action { get; set; }
+    }
+
 
     class Problem {
         public List<Action> GetAvalaibleActions(State s) {
@@ -66,10 +98,10 @@ namespace Ants {
 
     class QValueSet {
 
-        private Hashtable set;
+        //dont want to make this public but is better for saving the file...
+        public Hashtable set;
 
         public QValueSet() {
-            //this.set = new HashSet<int>();
             this.set = new Hashtable();
         }
 
@@ -131,22 +163,31 @@ namespace Ants {
     }
 
 
+    public enum QTile { Ant, Enemy, Food, None };
+
+
     //1 2 3
     //4   5
     //6 7 8
     struct State {
         public uint Value { get; private set; }
 
-        public State(Tile[] tiles) : this() {
+        public State(QTile[] tiles, byte position)
+            : this() {
+            
             this.Value = 0;
 
             for (int i = 0; i < 8; ++i) {
-                this.Value |= ((uint)tiles[i] << (3 * i));
+                this.Value |= ((uint)tiles[i] << (2 * i));
             }
+
+            this.Value |= (uint)position << 24;
         }
 
-        public State(uint u) : this() {
-            this.Value = u;
+        public State(uint key)
+            : this() {
+            
+            this.Value = key;
         }
     }
 }

@@ -3,10 +3,10 @@
 namespace Ants {
 
 	public enum Direction {
-		North,
-		South,
-		East,
-		West
+		North = 0,
+		South = 1,
+		East = 2,
+		West = 3
 	}
 
 	public static class DirectionExtensions {
