@@ -101,8 +101,11 @@ namespace Ants {
         //dont want to make this public but is better for saving the file...
         public Hashtable set;
 
+        Random random;
+
         public QValueSet() {
             this.set = new Hashtable();
+            this.random = new Random();
         }
 
         public float this[State s, Action a] {
@@ -133,12 +136,16 @@ namespace Ants {
             float maxQ = float.MinValue;
             Action result = default(Action);
 
-            foreach (Action a in Enum.GetValues(typeof(Action))) {
-                float Q = ((QSetItem)this.set[s])[a];
-                if (Q > maxQ) {
-                    maxQ = Q;
-                    result = a;
+            if (this.set.ContainsKey(s)) {
+                foreach (Action a in Enum.GetValues(typeof(Action))) {
+                    float Q = ((QSetItem)this.set[s])[a];
+                    if (Q > maxQ) {
+                        maxQ = Q;
+                        result = a;
+                    }
                 }
+            } else {
+                result = (Action)random.Next(5);
             }
 
             return result;
