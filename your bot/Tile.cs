@@ -1,5 +1,5 @@
 using System;
 namespace Ants {
-	public enum Tile { Ant = 1, Dead = 2, Land = 3, Food = 4, Water = 5, Unseen = 6, Hill = 7 }
+	public enum Tile { Ant = 0, Dead = 1, Land = 2, Food = 3, Water = 4, Unseen = 5, Hill = 6 }
 }
 
