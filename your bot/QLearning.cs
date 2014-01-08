@@ -53,33 +53,41 @@ namespace Ants {
             BinaryReader br = new BinaryReader(fs);
 
 
-            State state = new State(br.ReadUInt32());
+            while (fs.Position < fs.Length) {
+                State state = new State(br.ReadUInt32());
 
-            QSetItem newItem = new QSetItem();
-            foreach (Action a in Enum.GetValues(typeof(Action))) {
-                newItem[a] = br.ReadSingle();
+                QSetItem newItem = new QSetItem();
+                newItem[Action.North] = br.ReadSingle();
+                newItem[Action.South] = br.ReadSingle();
+                newItem[Action.East] = br.ReadSingle();
+                newItem[Action.West] = br.ReadSingle();
+                newItem[Action.None] = br.ReadSingle();
+
+                this.store.Add(state, newItem);
             }
-
-            this.store.Add(state, newItem);
         }
 
 
         public void SaveFile(string s) {
-            FileStream fs = File.Open(s, FileMode.CreateNew);
+            FileStream fs = File.Open(s, FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
 
-            Hashtable set = store.set;
+            Hashtable set = this.store.set;
+
             foreach (State state in set.Keys) {
                 QSetItem item = (QSetItem)set[state];
                 
                 bw.Write(state.Value);
 
                 bw.Write(item[Action.North]);
-                bw.Write(item[Action.East]);
                 bw.Write(item[Action.South]);
+                bw.Write(item[Action.East]);
                 bw.Write(item[Action.West]);
                 bw.Write(item[Action.None]);
             }
+
+            bw.Close();
+            fs.Close();
         }
     }
 
