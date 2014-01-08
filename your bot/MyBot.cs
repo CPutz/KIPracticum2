@@ -58,6 +58,14 @@ namespace Ants {
 
                 byte position = newLoc.ToByte();
 
+                if (this.doneMoves[position] == null) {
+                    this.doneMoves[position] = new List<StateAction>();
+                }
+
+                StateAction sa = new StateAction();
+                sa.State = s;
+                sa.Action = a;
+                this.doneMoves[position].Add(sa);
 
 				
 				// check if we have time left to calculate more orders
@@ -109,10 +117,10 @@ namespace Ants {
 
 		
 		public static void Main (string[] args) {
-/*#if DEBUG
+#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif*/
+#endif
 
 			new Ants().PlayGame(new MyBot(args[0], args[1]));
 		}
