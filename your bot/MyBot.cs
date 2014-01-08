@@ -5,7 +5,6 @@ namespace Ants {
 
 	class MyBot : Bot {
         private string QLearnFile;
-        private string gameLogFile;
 
         private QLearning learn;
 
@@ -16,9 +15,8 @@ namespace Ants {
         private float rho;
 
 
-        public MyBot(string QLearnFile, string gameLogFile) {
+        public MyBot(string QLearnFile) {
             this.QLearnFile = QLearnFile;
-            this.gameLogFile = gameLogFile;
 
             this.learn = new QLearning();
 
@@ -111,18 +109,33 @@ namespace Ants {
         }
 
 
-        public bool GameFinished() {
-            throw new NotImplementedException();
+        public void ProcessScores(IGameState state, int score1, int score2) {
+            int reward = score1 - score2;
+            
+            for (int col = 0; col < state.Width; ++col) {
+                for (int row = 0; row < state.Height; ++row) {
+                    Location location = new Location(row, col);
+                    byte position = location.ToByte();
+
+                    if (this.doneMoves[position] != null) {
+                        State newState = GetState(state, location);
+
+                        foreach (StateAction sa in this.doneMoves[position]) {
+                            this.learn.ProcessReward(-0.1f, sa.State, newState, sa.Action, this.alpha, this.gamma);
+                        }
+                    }
+                }
+            }
         }
 
-		
-		public static void Main (string[] args) {
+
+        public static void Main(string[] args) {
 #if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
 #endif
-
-			new Ants().PlayGame(new MyBot(args[0], args[1]));
+            Ants game = new Ants(args[1]);
+			game.PlayGame(new MyBot(args[0]));
 		}
 
 	}

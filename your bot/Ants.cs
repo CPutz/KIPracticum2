@@ -23,6 +23,12 @@ namespace Ants {
 		private const string END = "end";
 		
 		private GameState state;
+        private string gamelog;
+
+
+        public Ants(string gamelog) {
+            this.gamelog = gamelog;
+        }
 
 
 		public void PlayGame(Bot bot) {
