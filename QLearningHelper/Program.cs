@@ -6,10 +6,10 @@ namespace QLearningHelper {
     class Program {
         static void Main(string[] args) {
 
-#if DEBUG
+/*#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif
+#endif*/
 
             string learnFile = args[0];
             string lastStateFile = args[1];
@@ -63,25 +63,5 @@ namespace QLearningHelper {
 
             return int.Parse(scoreStrings[0]) - int.Parse(scoreStrings[1]);
         }
-
-
-        /*public void ProcessScores(IGameState state, int score1, int score2) {
-            int reward = score1 - score2;
-
-            for (int col = 0; col < state.Width; ++col) {
-                for (int row = 0; row < state.Height; ++row) {
-                    Location location = new Location(row, col);
-                    byte position = location.ToByte();
-
-                    if (this.doneMoves[position] != null) {
-                        State newState = GetState(state, location);
-
-                        foreach (StateAction sa in this.doneMoves[position]) {
-                            this.learn.ProcessReward(-0.1f, sa.State, newState, sa.Action, this.alpha, this.gamma);
-                        }
-                    }
-                }
-            }
-        }*/
     }
 }

@@ -65,6 +65,9 @@ namespace Ants {
 
                 this.store.Add(state, newItem);
             }
+
+            br.Close();
+            fs.Close();
         }
 
 

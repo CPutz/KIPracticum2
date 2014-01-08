@@ -1,26 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Ants {
 
 	class MyBot : Bot {
-        private string QLearnFile;
+        private string learnFile;
+        private string lastStateFile;
 
         private QLearning learn;
 
-        private List<StateAction>[] doneMoves;
+        private List<StateAction>[] lastState;
 
         private float alpha;
         private float gamma;
         private float rho;
 
 
-        public MyBot(string QLearnFile) {
-            this.QLearnFile = QLearnFile;
+        public MyBot(string learnFile, string lastStateFile) {
+            this.learnFile = learnFile;
+            this.lastStateFile = lastStateFile;
 
             this.learn = new QLearning();
+            this.learn.LoadFile(this.learnFile);
 
-            this.doneMoves = new List<StateAction>[144];
+            this.lastState = new List<StateAction>[144];
 
             this.alpha = 0.3f;
             this.gamma = 0.1f;
@@ -31,9 +35,9 @@ namespace Ants {
 		// DoTurn is run once per turn
 		public override void DoTurn (IGameState state) {
 
-            CheckRewards(state);
+            //CheckRewards(state);
 
-            this.doneMoves = new List<StateAction>[144];
+            this.lastState = new List<StateAction>[144];
 
 
 			// loop through all my ants and try to give them orders
@@ -56,26 +60,54 @@ namespace Ants {
 
                 byte position = newLoc.ToByte();
 
-                if (this.doneMoves[position] == null) {
-                    this.doneMoves[position] = new List<StateAction>();
+                if (this.lastState[position] == null) {
+                    this.lastState[position] = new List<StateAction>();
                 }
 
                 StateAction sa = new StateAction();
                 sa.State = s;
                 sa.Action = a;
-                this.doneMoves[position].Add(sa);
+                this.lastState[position].Add(sa);
 
 				
 				// check if we have time left to calculate more orders
 				if (state.TimeRemaining < 10) break;
 			}
-			
+
+
+            this.SaveLastState(state);
 		}
+
+
+        private void SaveLastState(IGameState gameState) {
+            FileStream fs = new FileStream(this.lastStateFile, FileMode.Create);
+            BinaryWriter bw = new BinaryWriter(fs);
+
+            for (int row = 0; row < gameState.Height; ++row) {
+                for (int col = 0; col < gameState.Width; ++col) {
+                    Location location = new Location(row, col);
+                    byte position = location.ToByte();
+                    
+                    if (this.lastState[position] != null) {
+                        State state = GetState(gameState, location);
+
+                        foreach (StateAction sa in this.lastState[position]) {
+                            bw.Write(sa.State.Value);
+                            bw.Write((byte)sa.Action);
+                            bw.Write(state.Value);
+                        }
+                    }
+                }
+            }
+
+            bw.Close();
+            fs.Close();
+        }
 
 
         private void CheckRewards(IGameState state) {
 
-            foreach (Location location in state.MyDeads) {
+            /*foreach (Location location in state.MyDeads) {
                 byte position = location.ToByte();
 
                 List<StateAction> moves = this.doneMoves[position];
@@ -84,7 +116,7 @@ namespace Ants {
                 foreach (StateAction sa in moves) {
                     this.learn.ProcessReward(-0.1f, sa.State, newState, sa.Action, this.alpha, this.gamma);
                 }
-            }
+            }*/
         }
 
 
@@ -109,33 +141,14 @@ namespace Ants {
         }
 
 
-        public void ProcessScores(IGameState state, int score1, int score2) {
-            int reward = score1 - score2;
-            
-            for (int col = 0; col < state.Width; ++col) {
-                for (int row = 0; row < state.Height; ++row) {
-                    Location location = new Location(row, col);
-                    byte position = location.ToByte();
-
-                    if (this.doneMoves[position] != null) {
-                        State newState = GetState(state, location);
-
-                        foreach (StateAction sa in this.doneMoves[position]) {
-                            this.learn.ProcessReward(-0.1f, sa.State, newState, sa.Action, this.alpha, this.gamma);
-                        }
-                    }
-                }
-            }
-        }
-
 
         public static void Main(string[] args) {
-#if DEBUG
+/*#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif
-            Ants game = new Ants(args[1]);
-			game.PlayGame(new MyBot(args[0]));
+#endif*/
+
+			new Ants().PlayGame(new MyBot(args[0], args[1]));
 		}
 
 	}

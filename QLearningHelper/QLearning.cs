@@ -65,6 +65,9 @@ namespace QLearningHelper {
 
                 this.store.Add(state, newItem);
             }
+
+            br.Close();
+            fs.Close();
         }
 
 
