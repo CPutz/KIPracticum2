@@ -124,7 +124,10 @@ namespace Ants {
         private Location[] statePositions = new Location[] { new Location(1, -1), new Location(1, 0),
                                                             new Location(1, 1), new Location(0, -1),
                                                             new Location(0, 1), new Location(-1, -1),
-                                                            new Location(-1, 0), new Location(-1, 1) };
+                                                            new Location(-1, 0), new Location(-1, 1),
+                                                            new Location(2, 0), new Location(0, 2),
+                                                            new Location(-2, 0), new Location(0, -2) };
+
 
         public State GetState(IGameState state, Location location) {
 
