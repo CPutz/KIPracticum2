@@ -46,6 +46,10 @@ namespace Ants {
 				return (this.Row * 397) ^ this.Col;
 			}
 		}
+
+        public byte ToByte() {
+            return (byte)(this.Row * 12 + this.Col);
+        }
 	}
 
 	public class TeamLocation : Location, IEquatable<TeamLocation> {

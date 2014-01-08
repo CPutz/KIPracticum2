@@ -65,9 +65,14 @@ namespace Ants {
 		List<AntHill> EnemyHills { get; }
 
 		/// <summary>
-		/// Gets a list of currently-visible locations where ants died last turn.
+		/// Gets a list of currently-visible locations where friendly ants died last turn.
 		/// </summary>
-		List<Location> DeadTiles { get; }
+		List<Location> MyDeads { get; }
+
+        /// <summary>
+        /// Gets a list of currently-visible locations where enemy ants died last turn.
+        /// </summary>
+        List<Location> EnemyDeads { get; }
 
 		/// <summary>
 		/// Gets a list of food tiles visible this turn.

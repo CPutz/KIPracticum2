@@ -40,7 +40,7 @@ namespace Ants {
         }
 
 
-        public Action PickRandomAction(List<Action> actions) {
+        private Action PickRandomAction(List<Action> actions) {
             if (actions.Count > 0)
                 return actions[this.random.Next(actions.Count)];
 

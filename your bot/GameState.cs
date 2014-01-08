@@ -27,7 +27,8 @@ namespace Ants {
 		public List<AntHill> MyHills { get; private set; }
 		public List<Ant> EnemyAnts { get; private set; }
 		public List<AntHill> EnemyHills { get; private set; }
-		public List<Location> DeadTiles { get; private set; }
+		public List<Location> MyDeads { get; private set; }
+        public List<Location> EnemyDeads { get; private set; }
 		public List<Location> FoodTiles { get; private set; }
 
 		public Tile this[Location location] {
@@ -58,7 +59,8 @@ namespace Ants {
 			MyHills = new List<AntHill>();
 			EnemyAnts = new List<Ant>();
 			EnemyHills = new List<AntHill>();
-			DeadTiles = new List<Location>();
+			MyDeads = new List<Location>();
+            EnemyDeads = new List<Location>();
 			FoodTiles = new List<Location>();
 			
 			map = new Tile[height, width];
@@ -79,13 +81,15 @@ namespace Ants {
 			foreach (Location loc in MyHills) map[loc.Row, loc.Col] = Tile.Land;
 			foreach (Location loc in EnemyAnts) map[loc.Row, loc.Col] = Tile.Land;
 			foreach (Location loc in EnemyHills) map[loc.Row, loc.Col] = Tile.Land;
-			foreach (Location loc in DeadTiles) map[loc.Row, loc.Col] = Tile.Land;
-			
+			foreach (Location loc in MyDeads) map[loc.Row, loc.Col] = Tile.Land;
+            foreach (Location loc in EnemyDeads) map[loc.Row, loc.Col] = Tile.Land;
+
 			MyHills.Clear();
 			MyAnts.Clear();
 			EnemyHills.Clear();
 			EnemyAnts.Clear();
-			DeadTiles.Clear();
+		    MyDeads.Clear();
+            EnemyDeads.Clear();
 			
 			// set all known food to unseen
 			foreach (Location loc in FoodTiles) map[loc.Row, loc.Col] = Tile.Land;
@@ -122,7 +126,7 @@ namespace Ants {
 			map[row, col] = Tile.Water;
 		}
 
-		public void DeadAnt (int row, int col) {
+		public void DeadAnt (int row, int col, int team) {
 			// food could spawn on a spot where an ant just died
 			// don't overwrite the space unless it is land
 			if (map[row, col] == Tile.Land) {
@@ -130,7 +134,11 @@ namespace Ants {
 			}
 			
 			// but always add to the dead list
-			DeadTiles.Add(new Location(row, col));
+            if (team == 0) {
+                MyDeads.Add(new Location(row, col));
+            } else {
+                EnemyDeads.Add(new Location(row, col));
+            }
 		}
 
 		public void AntHill (int row, int col, int team) {
