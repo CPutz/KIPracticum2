@@ -35,7 +35,7 @@ namespace Ants {
 		// DoTurn is run once per turn
 		public override void DoTurn (IGameState state) {
 
-            //CheckRewards(state);
+            ProcessRewards(state);
 
             this.lastState = new List<StateAction>[144];
 
@@ -69,7 +69,7 @@ namespace Ants {
                 sa.Action = a;
                 this.lastState[position].Add(sa);
 
-				
+
 				// check if we have time left to calculate more orders
 				if (state.TimeRemaining < 10) break;
 			}
@@ -105,18 +105,22 @@ namespace Ants {
         }
 
 
-        private void CheckRewards(IGameState state) {
+        private void ProcessRewards(IGameState gameState) {
 
-            /*foreach (Location location in state.MyDeads) {
-                byte position = location.ToByte();
+            for (int row = 0; row < gameState.Height; ++row) {
+                for (int col = 0; col < gameState.Width; ++col) {
+                    Location location = new Location(row, col);
+                    byte position = location.ToByte();
 
-                List<StateAction> moves = this.doneMoves[position];
-                State newState = GetState(state, location);
+                    if (this.lastState[position] != null) {
+                        State state = GetState(gameState, location);
 
-                foreach (StateAction sa in moves) {
-                    this.learn.ProcessReward(-0.1f, sa.State, newState, sa.Action, this.alpha, this.gamma);
+                        foreach (StateAction sa in this.lastState[position]) {
+                            this.learn.ProcessReward(0, sa.State, state, sa.Action, this.alpha, this.gamma);
+                        }
+                    }
                 }
-            }*/
+            }
         }
 
 
