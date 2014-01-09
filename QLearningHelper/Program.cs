@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace QLearningHelper {
     class Program {
         static void Main(string[] args) {
 
-/*#if DEBUG
+#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif*/
+#endif
 
             string learnFile = args[0];
             string lastStateFile = args[1];
@@ -50,18 +51,16 @@ namespace QLearningHelper {
 
             string s = sr.ReadToEnd();
 
-            int index = s.IndexOf("\"score\": ") + 10;
-            int end = s.IndexOf(']', index);
-
-            string scoreString = s.Substring(index, end - index);
-
-            string[] scoreStrings = scoreString.Split();
-            scoreStrings[0] = scoreStrings[0].Replace(",", String.Empty);
-
             sr.Close();
             fs.Close();
 
-            return int.Parse(scoreStrings[0]) - int.Parse(scoreStrings[1]);
+            string pattern = "\"score\": \\[([0-9]+), ([0-9]+)\\]";
+
+            Match m = Regex.Match(s, pattern);
+            string score1 = m.Groups[1].Value;
+            string score2 = m.Groups[2].Value;
+
+            return int.Parse(score1) - int.Parse(score2);
         }
     }
 }
