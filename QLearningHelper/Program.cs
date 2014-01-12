@@ -7,10 +7,10 @@ namespace QLearningHelper {
     class Program {
         static void Main(string[] args) {
 
-#if DEBUG
+/*#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif
+#endif*/
 
             string learnFile = args[0];
             string lastStateFile = args[1];
@@ -22,6 +22,8 @@ namespace QLearningHelper {
 
             int reward = GetReward(gamelog);
 
+            if (reward < 0)
+                reward = 0;
 
             QLearning learn = new QLearning();
             learn.LoadFile(learnFile);
