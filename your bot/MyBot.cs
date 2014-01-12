@@ -109,14 +109,23 @@ namespace Ants {
 
             for (int row = 0; row < gameState.Height; ++row) {
                 for (int col = 0; col < gameState.Width; ++col) {
-                    Location location = new Location(row, col);
-                    byte position = location.ToByte();
+                    Location newLocation = new Location(row, col);
+                    byte newPosition = newLocation.ToByte();
 
-                    if (this.lastState[position] != null) {
-                        State state = GetState(gameState, location);
+                    if (this.lastState[newPosition] != null) {
+                        State state = GetState(gameState, newLocation);
 
-                        foreach (StateAction sa in this.lastState[position]) {
-                            this.learn.ProcessReward(0, sa.State, state, sa.Action, this.alpha, this.gamma);
+                        foreach (StateAction sa in this.lastState[newPosition]) {
+                            int oldPosition = sa.State.GetPosition();
+                            Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
+
+                            float reward = 0.1f * (gameState.GetDistance(gameState.MyHills[0], newLocation) -
+                                                   gameState.GetDistance(gameState.MyHills[0], oldLocation));
+
+                            if (reward < 0)
+                                reward = 0;
+
+                            this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
                         }
                     }
                 }

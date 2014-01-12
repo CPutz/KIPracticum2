@@ -22,9 +22,6 @@ namespace QLearningHelper {
 
             int reward = GetReward(gamelog);
 
-            if (reward < 0)
-                reward = 0;
-
             QLearning learn = new QLearning();
             learn.LoadFile(learnFile);
 

@@ -54,7 +54,7 @@ namespace Ants {
 
 
             while (fs.Position < fs.Length) {
-                State state = new State(br.ReadUInt32());
+                State state = new State(br.ReadInt32());
 
                 QSetItem newItem = new QSetItem();
                 newItem[Action.North] = br.ReadSingle();
@@ -183,12 +183,13 @@ namespace Ants {
 
     public enum QTile { Ant, Enemy, Food, None };
 
-
-    //1 2 3
-    //4   5
-    //6 7 8
+    //     9
+    //   1 2 3
+    //12 4   5 10
+    //   6 7 8
+    //     11
     struct State {
-        public uint Value { get; private set; }
+        public int Value { get; private set; }
 
         public State(QTile[] tiles, byte position)
             : this() {
@@ -196,16 +197,20 @@ namespace Ants {
             this.Value = 0;
 
             for (int i = 0; i < tiles.Length; ++i) {
-                this.Value |= ((uint)tiles[i] << (2 * i));
+                this.Value |= ((int)tiles[i] << (2 * i));
             }
 
-            this.Value |= (uint)position << 24;
+            this.Value |= position << 24;
         }
 
-        public State(uint key)
+        public State(int key)
             : this() {
             
             this.Value = key;
+        }
+
+        public int GetPosition() {
+            return (int)(this.Value & 4278190080) >> 24;
         }
     }
 }
