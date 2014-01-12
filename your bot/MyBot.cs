@@ -106,6 +106,7 @@ namespace Ants {
 
 
         private void ProcessRewards(IGameState gameState) {
+            Location enemyHill = new Location(2, 8);
 
             for (int row = 0; row < gameState.Height; ++row) {
                 for (int col = 0; col < gameState.Width; ++col) {
@@ -119,11 +120,8 @@ namespace Ants {
                             int oldPosition = sa.State.GetPosition();
                             Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
 
-                            float reward = 0.1f * (gameState.GetDistance(gameState.MyHills[0], newLocation) -
-                                                   gameState.GetDistance(gameState.MyHills[0], oldLocation));
-
-                            if (reward < 0)
-                                reward = 0;
+                            float reward = 0.1f * (gameState.GetDistance(enemyHill, oldLocation) -
+                                                   gameState.GetDistance(enemyHill, newLocation));
 
                             this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
                         }
@@ -159,10 +157,10 @@ namespace Ants {
 
 
         public static void Main(string[] args) {
-/*#if DEBUG
+#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif*/
+#endif
 
 			new Ants().PlayGame(new MyBot(args[0], args[1]));
 		}
