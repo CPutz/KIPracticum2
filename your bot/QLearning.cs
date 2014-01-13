@@ -26,7 +26,6 @@ namespace Ants {
         /// <paramref name="rho"/> to return a random action.</returns>
         public Action GetAction(State state, float rho) {
 
-            //List<Action> actions = problem.GetAvalaibleActions(state);
             List<Action> actions = new List<Action> { Action.North, Action.East, Action.South, Action.West, Action.None };
 
             if (this.random.NextDouble() < rho)
@@ -72,8 +71,15 @@ namespace Ants {
         //file format:
         //1 int (state)
         //5 floats (5 actions)
-        public void LoadFile(string s) {
-            FileStream fs = File.Open(s, FileMode.Open);
+
+        /// <summary>
+        /// Loads a Q-learning file containing Q-values.
+        /// </summary>
+        /// <param name="filename">The name of the Q-learning file.</param>
+        public void LoadFile(string filename) {
+
+
+            FileStream fs = File.Open(filename, FileMode.OpenOrCreate);
             BinaryReader br = new BinaryReader(fs);
 
 
@@ -95,8 +101,12 @@ namespace Ants {
         }
 
 
-        public void SaveFile(string s) {
-            FileStream fs = File.Open(s, FileMode.Create);
+        /// <summary>
+        /// Saves the Q-values stored in store in a file.
+        /// </summary>
+        /// <param name="filename">The name of the Q-learning file.</param>
+        public void SaveFile(string filename) {
+            FileStream fs = File.Open(filename, FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
 
             Hashtable set = this.store.set;
@@ -125,12 +135,9 @@ namespace Ants {
     }
 
 
-    class Problem {
-        public List<Action> GetAvalaibleActions(State s) {
-            throw new NotImplementedException();
-        }
-    }
-
+    /// <summary>
+    /// A set that contains Q-values.
+    /// </summary>
     class QValueSet {
 
         //dont want to make this public but is better for saving the file...
@@ -167,6 +174,12 @@ namespace Ants {
         }
 
 
+        /// <summary>
+        /// Gets the best possible action in a certain state.
+        /// </summary>
+        /// <param name="s">The state to choose an action in.</param>
+        /// <returns>Returns the action with the highest Q-value. If all values are zero then
+        /// a random value will be returned.</returns>
         public Action GetBestAction(State s) {
             float maxQ = float.MinValue;
             Action result = default(Action);
@@ -187,6 +200,7 @@ namespace Ants {
         }
     }
 
+
     class QSetItem {
         private float[] values;
 
@@ -205,13 +219,17 @@ namespace Ants {
     }
 
 
+    // The information stored about each tile in a state
     public enum QTile { Ant, Enemy, Food, None };
 
-    //     9
-    //   1 2 3
-    //12 4   5 10
-    //   6 7 8
-    //     11
+    //The tiles that are stored in a state where x is an ant.
+    //      9
+    //    1 2 3
+    // 12 4 x 5 10
+    //    6 7 8
+    //      11
+    
+
     struct State {
         public int Value { get; private set; }
 
@@ -220,10 +238,13 @@ namespace Ants {
             
             this.Value = 0;
 
+            //The last 24 bits are used to store 12 2-bit values representing
+            //the QTile value in each of the 12 tiles around the position.
             for (int i = 0; i < tiles.Length; ++i) {
                 this.Value |= ((int)tiles[i] << (2 * i));
             }
 
+            //The first 8 bits are used to store a position value (between 0 and 143)
             this.Value |= position << 24;
         }
 
