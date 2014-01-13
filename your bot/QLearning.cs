@@ -11,12 +11,19 @@ namespace Ants {
         Random random;
 
 
-
         public QLearning() {
             this.store = new QValueSet();
             this.random = new Random();
         }
 
+
+        /// <summary>
+        /// Gets an action that is possible in a particular state.
+        /// </summary>
+        /// <param name="state">The state to choose an action in.</param>
+        /// <param name="rho">The probability of choosing a random action.</param>
+        /// <returns>the best possible action in State <paramref name="state"/> with probability 
+        /// <paramref name="rho"/> to return a random action.</returns>
         public Action GetAction(State state, float rho) {
 
             //List<Action> actions = problem.GetAvalaibleActions(state);
@@ -29,6 +36,15 @@ namespace Ants {
         }
 
 
+        /// <summary>
+        /// Porcesses a given reward.
+        /// </summary>
+        /// <param name="reward">The reward that was earned by taking the action.</param>
+        /// <param name="oldState">The state before the <paramref name="action"/> was taken.</param>
+        /// <param name="newState">The state we ended up in after taking the <paramref name="action"/>.</param>
+        /// <param name="action">The action that was taken.</param>
+        /// <param name="alpha">The Learning rate.</param>
+        /// <param name="gamma">The Discount rate.</param>
         public void ProcessReward(float reward, State oldState, State newState, Action action, float alpha, float gamma) {
 
             float Q = store[oldState, action];
@@ -40,6 +56,11 @@ namespace Ants {
         }
 
 
+        /// <summary>
+        /// Picks a random action from a list of acitons.
+        /// </summary>
+        /// <param name="actions">The list to choose an actions from.</param>
+        /// <returns>An action from the list <paramref name="actions"/>.</returns>
         private Action PickRandomAction(List<Action> actions) {
             if (actions.Count > 0)
                 return actions[this.random.Next(actions.Count)];
@@ -48,6 +69,9 @@ namespace Ants {
         }
 
 
+        //file format:
+        //1 int (state)
+        //5 floats (5 actions)
         public void LoadFile(string s) {
             FileStream fs = File.Open(s, FileMode.Open);
             BinaryReader br = new BinaryReader(fs);

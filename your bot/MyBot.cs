@@ -37,6 +37,7 @@ namespace Ants {
 
             ProcessRewards(state);
 
+            // erase old state data since we start a new turn
             this.lastState = new List<StateAction>[144];
 
 
