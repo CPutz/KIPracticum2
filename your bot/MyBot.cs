@@ -10,7 +10,7 @@ namespace Ants {
 
         private QLearning learn;
 
-        private StateAction[] lastState;
+        private StateAction[] lastStates;
 
         private float alpha;
         private float gamma;
@@ -24,7 +24,7 @@ namespace Ants {
             this.learn = new QLearning();
             this.learn.LoadFile(this.learnFile);
 
-            this.lastState = new StateAction[144];
+            this.lastStates = new StateAction[144];
 
             this.alpha = 0.3f;
             this.gamma = 0.1f;
@@ -38,7 +38,7 @@ namespace Ants {
             ProcessRewards(state);
 
             // erase old state data since we start a new turn
-            this.lastState = new StateAction[144];
+            this.lastStates = new StateAction[144];
 
 
 			// loop through all my ants and try to give them orders
@@ -68,9 +68,9 @@ namespace Ants {
 
                 byte position = newLoc.ToByte();
 
-                this.lastState[position] = new StateAction();
-                this.lastState[position].State = s;
-                this.lastState[position].Action = a;
+                this.lastStates[position] = new StateAction();
+                this.lastStates[position].State = s;
+                this.lastStates[position].Action = a;
 
 
 				// check if we have time left to calculate more orders
@@ -91,9 +91,9 @@ namespace Ants {
                     Location location = new Location(row, col);
                     byte position = location.ToByte();
                     
-                    if (this.lastState[position] != null) {
+                    if (this.lastStates[position] != null) {
                         State state = GetState(gameState, location);
-                        StateAction sa = this.lastState[position];
+                        StateAction sa = this.lastStates[position];
 
                         bw.Write(sa.State.Value);
                         bw.Write((byte)sa.Action);
@@ -115,9 +115,9 @@ namespace Ants {
                     Location newLocation = new Location(row, col);
                     byte newPosition = newLocation.ToByte();
 
-                    if (this.lastState[newPosition] != null) {
+                    if (this.lastStates[newPosition] != null) {
                         State state = GetState(gameState, newLocation);
-                        StateAction sa = this.lastState[newPosition];
+                        StateAction sa = this.lastStates[newPosition];
 
                         int oldPosition = sa.State.GetPosition();
                         Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
@@ -158,10 +158,10 @@ namespace Ants {
 
 
         public static void Main(string[] args) {
-#if DEBUG
+/*#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif
+#endif*/
 
 			new Ants().PlayGame(new MyBot(args[0], args[1]));
 		}
