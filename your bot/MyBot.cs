@@ -10,7 +10,7 @@ namespace Ants {
 
         private QLearning learn;
 
-        private List<StateAction>[] lastState;
+        private StateAction[] lastState;
 
         private float alpha;
         private float gamma;
@@ -24,7 +24,7 @@ namespace Ants {
             this.learn = new QLearning();
             this.learn.LoadFile(this.learnFile);
 
-            this.lastState = new List<StateAction>[144];
+            this.lastState = new StateAction[144];
 
             this.alpha = 0.3f;
             this.gamma = 0.1f;
@@ -38,7 +38,7 @@ namespace Ants {
             ProcessRewards(state);
 
             // erase old state data since we start a new turn
-            this.lastState = new List<StateAction>[144];
+            this.lastState = new StateAction[144];
 
 
 			// loop through all my ants and try to give them orders
@@ -59,16 +59,18 @@ namespace Ants {
                 }
 
 
-                byte position = newLoc.ToByte();
-
-                if (this.lastState[position] == null) {
-                    this.lastState[position] = new List<StateAction>();
+                //If the move will be blocked, the new location of the ant 
+                //is just were the ant is right now.
+                if (state[newLoc] == Tile.Water) {
+                    newLoc = ant;
                 }
 
-                StateAction sa = new StateAction();
-                sa.State = s;
-                sa.Action = a;
-                this.lastState[position].Add(sa);
+
+                byte position = newLoc.ToByte();
+
+                this.lastState[position] = new StateAction();
+                this.lastState[position].State = s;
+                this.lastState[position].Action = a;
 
 
 				// check if we have time left to calculate more orders
@@ -91,12 +93,11 @@ namespace Ants {
                     
                     if (this.lastState[position] != null) {
                         State state = GetState(gameState, location);
+                        StateAction sa = this.lastState[position];
 
-                        foreach (StateAction sa in this.lastState[position]) {
-                            bw.Write(sa.State.Value);
-                            bw.Write((byte)sa.Action);
-                            bw.Write(state.Value);
-                        }
+                        bw.Write(sa.State.Value);
+                        bw.Write((byte)sa.Action);
+                        bw.Write(state.Value);
                     }
                 }
             }
@@ -116,16 +117,15 @@ namespace Ants {
 
                     if (this.lastState[newPosition] != null) {
                         State state = GetState(gameState, newLocation);
+                        StateAction sa = this.lastState[newPosition];
 
-                        foreach (StateAction sa in this.lastState[newPosition]) {
-                            int oldPosition = sa.State.GetPosition();
-                            Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
+                        int oldPosition = sa.State.GetPosition();
+                        Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
 
-                            float reward = 0.1f * (gameState.GetDistance(enemyHill, oldLocation) -
-                                                   gameState.GetDistance(enemyHill, newLocation));
+                        float reward = 0.1f * (gameState.GetDistance(enemyHill, oldLocation) -
+                                                gameState.GetDistance(enemyHill, newLocation));
 
-                            this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
-                        }
+                        this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
                     }
                 }
             }
