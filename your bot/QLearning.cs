@@ -183,15 +183,21 @@ namespace Ants {
         public Action GetBestAction(State s) {
             float maxQ = float.MinValue;
             Action result = default(Action);
+            List<Action> actions = new List<Action>();
 
             if (this.set.ContainsKey(s)) {
                 foreach (Action a in Enum.GetValues(typeof(Action))) {
                     float Q = ((QSetItem)this.set[s])[a];
                     if (Q > maxQ) {
+                        actions = new List<Action>();
                         maxQ = Q;
-                        result = a;
+                        actions.Add(a);
+                    } else if (Q == maxQ) {
+                        actions.Add(a);
                     }
                 }
+
+                result = actions[random.Next(actions.Count)];
             } else {
                 result = (Action)random.Next(5);
             }
