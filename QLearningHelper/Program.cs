@@ -20,7 +20,10 @@ namespace QLearningHelper {
             float alpha = 0.3f;
             float gamma = 0.1f;
 
-            int reward = GetReward(gamelog);
+            float reward = GetReward(gamelog);
+
+            if (reward < 0)
+                reward *= 0.2f;
 
             QLearning learn = new QLearning();
             learn.LoadFile(learnFile);
