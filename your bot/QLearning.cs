@@ -129,7 +129,7 @@ namespace Ants {
     }
 
 
-    struct StateAction {
+    class StateAction {
         public State State { get; set; }
         public Action Action { get; set; }
     }
