@@ -129,12 +129,6 @@ namespace Ants {
                             Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
 
 
-                            if (newPosition == oldPosition && sa.Action != Action.None) {
-                                int test = 2;
-                                test *= 5000;
-                            }
-
-
                             float reward = 0;
 
                             //positive reward for going more towards the enemy hill and
@@ -186,10 +180,10 @@ namespace Ants {
 
 
         public static void Main(string[] args) {
-#if DEBUG
+/*#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif
+#endif*/
 
 			new Ants().PlayGame(new MyBot(args[0], args[1]));
 		}
