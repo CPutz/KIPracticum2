@@ -84,7 +84,7 @@ namespace Ants {
 
 
             while (fs.Position < fs.Length) {
-                State state = new State(br.ReadInt32());
+                State state = new State(br.ReadUInt32());
 
                 QSetItem newItem = new QSetItem();
                 newItem[Action.North] = br.ReadSingle();
@@ -237,7 +237,7 @@ namespace Ants {
     
 
     struct State {
-        public int Value { get; private set; }
+        public uint Value { get; private set; }
 
         public State(QTile[] tiles, byte position)
             : this() {
@@ -247,21 +247,22 @@ namespace Ants {
             //The last 24 bits are used to store 12 2-bit values representing
             //the QTile value in each of the 12 tiles around the position.
             for (int i = 0; i < tiles.Length; ++i) {
-                this.Value |= ((int)tiles[i] << (2 * i));
+                this.Value |= ((uint)tiles[i] << (2 * i + 8));
             }
 
             //The first 8 bits are used to store a position value (between 0 and 143)
-            this.Value |= position << 24;
+            this.Value |= (uint)position;
         }
 
-        public State(int key)
+        public State(uint key)
             : this() {
             
             this.Value = key;
         }
 
-        public int GetPosition() {
-            return (int)(this.Value & 4278190080) >> 24;
+        public byte GetPosition() {
+            //                                00000000 00000000 00000000 11111111
+            return (byte)(this.Value & 255);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Ants {
 
         private QLearning learn;
 
-        private StateAction[] lastStates;
+        private List<StateAction>[] lastStates;
 
         private float alpha;
         private float gamma;
@@ -24,7 +24,7 @@ namespace Ants {
             this.learn = new QLearning();
             this.learn.LoadFile(this.learnFile);
 
-            this.lastStates = new StateAction[144];
+            this.lastStates = new List<StateAction>[144];
 
             this.alpha = 0.3f;
             this.gamma = 0.1f;
@@ -38,7 +38,7 @@ namespace Ants {
             ProcessRewards(state);
 
             // erase old state data since we start a new turn
-            this.lastStates = new StateAction[144];
+            this.lastStates = new List<StateAction>[144];
 
 
 			// loop through all my ants and try to give them orders
@@ -66,11 +66,16 @@ namespace Ants {
                 }
 
 
-                byte position = newLoc.ToByte();
+                byte newPosition = newLoc.ToByte();
 
-                this.lastStates[position] = new StateAction();
-                this.lastStates[position].State = s;
-                this.lastStates[position].Action = a;
+
+                if (lastStates[newPosition] == null)
+                    lastStates[newPosition] = new List<StateAction>();
+
+                StateAction sa = new StateAction();
+                sa.State = s;
+                sa.Action = a;
+                this.lastStates[newPosition].Add(sa);
 
 
 				// check if we have time left to calculate more orders
@@ -93,11 +98,12 @@ namespace Ants {
                     
                     if (this.lastStates[position] != null) {
                         State state = GetState(gameState, location);
-                        StateAction sa = this.lastStates[position];
 
-                        bw.Write(sa.State.Value);
-                        bw.Write((byte)sa.Action);
-                        bw.Write(state.Value);
+                        foreach (StateAction sa in this.lastStates[position]) {
+                            bw.Write(sa.State.Value);
+                            bw.Write((byte)sa.Action);
+                            bw.Write(state.Value);
+                        }
                     }
                 }
             }
@@ -117,15 +123,37 @@ namespace Ants {
 
                     if (this.lastStates[newPosition] != null) {
                         State state = GetState(gameState, newLocation);
-                        StateAction sa = this.lastStates[newPosition];
 
-                        int oldPosition = sa.State.GetPosition();
-                        Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
+                        foreach (StateAction sa in this.lastStates[newPosition]) {
+                            int oldPosition = sa.State.GetPosition();
+                            Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
 
-                        float reward = 0.1f * (gameState.GetDistance(enemyHill, oldLocation) -
-                                                gameState.GetDistance(enemyHill, newLocation));
 
-                        this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
+                            if (newPosition == oldPosition && sa.Action != Action.None) {
+                                int test = 2;
+                                test *= 5000;
+                            }
+
+
+                            float reward = 0;
+
+                            //positive reward for going more towards the enemy hill and
+                            //negative reward for going away from the enemy hill
+                            reward += 0.1f * (gameState.GetDistance(enemyHill, oldLocation) -
+                                                    gameState.GetDistance(enemyHill, newLocation));
+
+                            //negative reward for having more than one ant walking to the same location,
+                            if (this.lastStates[newPosition].Count >= 2) {
+
+                                //but do not give that penalty when the ant did not move that turn
+                                //(because then that ant did nothing wrong).
+                                if (sa.Action != Action.None) {
+                                    reward += -0.5f;
+                                }
+                            }
+
+                            this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
+                        }
                     }
                 }
             }
@@ -158,10 +186,10 @@ namespace Ants {
 
 
         public static void Main(string[] args) {
-/*#if DEBUG
+#if DEBUG
             System.Diagnostics.Debugger.Launch();
             while (!System.Diagnostics.Debugger.IsAttached) { }
-#endif*/
+#endif
 
 			new Ants().PlayGame(new MyBot(args[0], args[1]));
 		}
