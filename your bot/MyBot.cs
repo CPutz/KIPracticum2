@@ -84,6 +84,7 @@ namespace Ants {
 
 
             this.SaveLastState(state);
+            this.learn.SaveFile(this.learnFile);
 		}
 
 
