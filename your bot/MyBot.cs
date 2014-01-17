@@ -16,11 +16,11 @@ namespace Ants {
         private float gamma;
         private float rho;
 
-
+        
         public MyBot(string learnFile, string lastStateFile) {
             this.learnFile = learnFile;
             this.lastStateFile = lastStateFile;
-
+            
             this.learn = new QLearning();
             this.learn.LoadFile(this.learnFile);
 
@@ -33,18 +33,18 @@ namespace Ants {
 
 
 		// DoTurn is run once per turn
-		public override void DoTurn (IGameState state) {
+		public override void DoTurn (IGameState gameState) {
 
-            ProcessRewards(state);
+            ProcessRewards(gameState);
 
             // erase old state data since we start a new turn
             this.lastStates = new List<StateAction>[144];
 
 
 			// loop through all my ants and try to give them orders
-			foreach (Ant ant in state.MyAnts) {
+            foreach (Ant ant in gameState.MyAnts) {
 
-                State s = GetState(state, ant);
+                State s = GetState(gameState, ant);
                 Action a = this.learn.GetAction(s, this.rho);
 
                 Location newLoc;
@@ -53,7 +53,7 @@ namespace Ants {
 
                     this.IssueOrder(ant, direction);
 
-                    newLoc = state.GetDestination(ant, direction);
+                    newLoc = gameState.GetDestination(ant, direction);
                 } else {
                     newLoc = ant;
                 }
@@ -61,7 +61,7 @@ namespace Ants {
 
                 //If the move will be blocked, the new location of the ant 
                 //is just were the ant is right now.
-                if (state[newLoc] == Tile.Water) {
+                if (gameState[newLoc] == Tile.Water) {
                     newLoc = ant;
                 }
 
@@ -79,11 +79,11 @@ namespace Ants {
 
 
 				// check if we have time left to calculate more orders
-				if (state.TimeRemaining < 10) break;
+                if (gameState.TimeRemaining < 10) break;
 			}
 
 
-            this.SaveLastState(state);
+            this.SaveLastState(gameState);
             this.learn.SaveFile(this.learnFile);
 		}
 
@@ -132,10 +132,17 @@ namespace Ants {
 
                             float reward = 0;
 
+                            int d1 = gameState.GetDistance(enemyHill, oldLocation);
+                            int d2 = gameState.GetDistance(enemyHill, newLocation);
+
                             //positive reward for going more towards the enemy hill and
                             //negative reward for going away from the enemy hill
-                            reward += 0.1f * (gameState.GetDistance(enemyHill, oldLocation) -
-                                                    gameState.GetDistance(enemyHill, newLocation));
+                            //if (d2 != 0)
+                            //    reward += 3.0f * (float)(d1 - d2) / (d2);
+
+                            //give reward for getting food
+                            if (IsNextToFood(gameState, newLocation))
+                                reward += 0.5f;
 
                             //negative reward for having more than one ant walking to the same location,
                             if (this.lastStates[newPosition].Count >= 2) {
@@ -143,7 +150,7 @@ namespace Ants {
                                 //but do not give that penalty when the ant did not move that turn
                                 //(because then that ant did nothing wrong).
                                 if (sa.Action != Action.None) {
-                                    reward += -0.5f;
+                                    reward += -3.0f;
                                 }
                             }
 
@@ -152,6 +159,19 @@ namespace Ants {
                     }
                 }
             }
+        }
+
+
+        private bool IsNextToFood(IGameState gameState, Location location) {
+            bool res = false;
+
+            foreach (Direction direction in Enum.GetValues(typeof(Direction))) {
+                if (gameState[gameState.GetDestination(location, direction)] == Tile.Food) {
+                    res = true;
+                }
+            }
+
+            return res;
         }
 
 
