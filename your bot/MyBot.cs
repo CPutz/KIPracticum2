@@ -140,9 +140,8 @@ namespace Ants {
                             //if (d2 != 0)
                             //    reward += 3.0f * (float)(d1 - d2) / (d2);
 
-                            //give reward for getting food
-                            if (IsNextToFood(gameState, newLocation))
-                                reward += 0.5f;
+                            //give reward for getting food (more food => higher reward)
+                            reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
 
                             //negative reward for having more than one ant walking to the same location,
                             if (this.lastStates[newPosition].Count >= 2) {
@@ -162,12 +161,18 @@ namespace Ants {
         }
 
 
-        private bool IsNextToFood(IGameState gameState, Location location) {
-            bool res = false;
+        /// <summary>
+        /// Gets the number of food there is next to a certain location.
+        /// </summary>
+        /// <param name="gameState">The GameState.</param>
+        /// <param name="location">The Location to check.</param>
+        /// <returns>The number of food next to <paramref name="location"/>.</returns>
+        private int NumOfFoodNextTo(IGameState gameState, Location location) {
+            int res = 0;
 
             foreach (Direction direction in Enum.GetValues(typeof(Direction))) {
                 if (gameState[gameState.GetDestination(location, direction)] == Tile.Food) {
-                    res = true;
+                    res++;
                 }
             }
 
@@ -183,7 +188,12 @@ namespace Ants {
                                                             new Location(2, 0), new Location(0, 2),
                                                             new Location(-2, 0), new Location(0, -2) };
 
-
+        /// <summary>
+        /// Gets a State object representing the current state.
+        /// </summary>
+        /// <param name="state">The GameState.</param>
+        /// <param name="location">The Location from which to generate a state.</param>
+        /// <returns>A State object that repressents the current state given the location.</returns>
         public State GetState(IGameState state, Location location) {
 
             QTile[] tiles = new QTile[statePositions.Length];
