@@ -20,7 +20,7 @@ namespace QLearningHelper {
             float alpha = 0.3f;
             float gamma = 0.1f;
 
-            float reward = GetReward(gamelog);
+            int reward = GetReward(gamelog);
 
             QLearning learn = new QLearning();
             learn.LoadFile(learnFile);
@@ -41,7 +41,20 @@ namespace QLearningHelper {
             fs.Close();
 
             learn.SaveFile(learnFile);
+
+
+            //check whether a log file is passed as a parameter
+            if (args.Length > 3) {
+                string log = args[3];
+
+                using(StreamWriter sw = new StreamWriter(log, true)) {
+
+                    sw.WriteLine(reward + "\t" + GetGameLength(gamelog));
+
+                }
+            }
         }
+
 
         static int GetReward(string gamelog) {
 
@@ -60,6 +73,24 @@ namespace QLearningHelper {
             string score2 = m.Groups[2].Value;
 
             return int.Parse(score1) - int.Parse(score2);
+        }
+
+
+        static int GetGameLength(string gamelog) {
+            FileStream fs = new FileStream(gamelog, FileMode.Open);
+            StreamReader sr = new StreamReader(fs);
+
+            string s = sr.ReadToEnd();
+
+            sr.Close();
+            fs.Close();
+
+            string pattern = "\"game_length\": ([0-9]+),";
+
+            Match m = Regex.Match(s, pattern);
+            string length = m.Groups[1].Value;
+
+            return int.Parse(length);
         }
     }
 }
