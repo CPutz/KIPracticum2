@@ -30,9 +30,9 @@ namespace QLearningHelper {
             BinaryReader br = new BinaryReader(fs);
 
             while (fs.Position < fs.Length) {
-                State oldState = new State((uint)br.ReadInt32());
+                State oldState = new State((uint)br.ReadInt64());
                 Action action = (Action)br.ReadByte();
-                State newState = new State((uint)br.ReadInt32());
+                State newState = new State((uint)br.ReadInt64());
 
                 learn.ProcessReward(reward, oldState, newState, action, alpha, gamma);
             }
