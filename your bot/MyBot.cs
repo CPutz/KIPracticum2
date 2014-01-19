@@ -36,7 +36,7 @@ namespace Ants {
             ProcessRewards(gameState);
 
             // erase old state data since we start a new turn
-            this.lastStates = new List<StateAction>[144];
+            this.lastStates = new List<StateAction>[gameState.Width * gameState.Height];
 
 
 			// loop through all my ants and try to give them orders

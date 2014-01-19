@@ -84,7 +84,7 @@ namespace QLearningHelper {
 
 
             while (fs.Position < fs.Length) {
-                State state = new State(br.ReadUInt32());
+                State state = new State(br.ReadUInt64());
 
                 QSetItem newItem = new QSetItem();
                 newItem[Action.North] = br.ReadSingle();
@@ -244,14 +244,14 @@ namespace QLearningHelper {
             
             this.Value = 0;
 
-            //The last 24 bits are used to store 12 2-bit values representing
+            //The first 16 bits are used to store a position value (between 0 and 143)
+            this.Value |= (ulong)position;
+
+            //The next 24 bits are used to store 12 2-bit values representing
             //the QTile value in each of the 12 tiles around the position.
             for (int i = 0; i < tiles.Length; ++i) {
                 this.Value |= ((ulong)tiles[i] << (2 * i + 16));
             }
-
-            //The first 16 bits are used to store a position value (between 0 and 143)
-            this.Value |= (ulong)position;
         }
 
         public State(ulong key)
