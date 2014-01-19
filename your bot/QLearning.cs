@@ -237,9 +237,9 @@ namespace Ants {
     
 
     struct State {
-        public uint Value { get; private set; }
+        public ulong Value { get; private set; }
 
-        public State(QTile[] tiles, byte position)
+        public State(QTile[] tiles, short position)
             : this() {
             
             this.Value = 0;
@@ -247,22 +247,22 @@ namespace Ants {
             //The last 24 bits are used to store 12 2-bit values representing
             //the QTile value in each of the 12 tiles around the position.
             for (int i = 0; i < tiles.Length; ++i) {
-                this.Value |= ((uint)tiles[i] << (2 * i + 8));
+                this.Value |= ((ulong)tiles[i] << (2 * i + 16));
             }
 
-            //The first 8 bits are used to store a position value (between 0 and 143)
-            this.Value |= (uint)position;
+            //The first 16 bits are used to store a position value (between 0 and 143)
+            this.Value |= (ulong)position;
         }
 
-        public State(uint key)
+        public State(ulong key)
             : this() {
             
             this.Value = key;
         }
 
-        public byte GetPosition() {
-            //                                00000000 00000000 00000000 11111111
-            return (byte)(this.Value & 255);
+        public short GetPosition() {
+            //                                00000000 00000000 11111111 11111111
+            return (short)(this.Value & 65535);
         }
     }
 }

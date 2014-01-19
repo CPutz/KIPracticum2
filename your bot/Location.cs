@@ -47,8 +47,8 @@ namespace Ants {
 			}
 		}
 
-        public byte ToByte() {
-            return (byte)(this.Row * 12 + this.Col);
+        public short ToShort(int width) {
+            return (short)(this.Row * width + this.Col);
         }
 	}
 

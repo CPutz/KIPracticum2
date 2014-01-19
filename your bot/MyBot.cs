@@ -24,8 +24,6 @@ namespace Ants {
             this.learn = new QLearning();
             this.learn.LoadFile(this.learnFile);
 
-            this.lastStates = new List<StateAction>[144];
-
             this.alpha = 0.3f;
             this.gamma = 0.1f;
             this.rho = 0.1f;
@@ -66,7 +64,7 @@ namespace Ants {
                 }
 
 
-                byte newPosition = newLoc.ToByte();
+                short newPosition = newLoc.ToShort(gameState.Width);
 
 
                 if (lastStates[newPosition] == null)
@@ -95,7 +93,7 @@ namespace Ants {
             for (int row = 0; row < gameState.Height; ++row) {
                 for (int col = 0; col < gameState.Width; ++col) {
                     Location location = new Location(row, col);
-                    byte position = location.ToByte();
+                    short position = location.ToShort(gameState.Width);
                     
                     if (this.lastStates[position] != null) {
                         State state = GetState(gameState, location);
@@ -115,45 +113,48 @@ namespace Ants {
 
 
         private void ProcessRewards(IGameState gameState) {
-            Location enemyHill = new Location(2, 8);
+            if (this.lastStates != null) {
 
-            for (int row = 0; row < gameState.Height; ++row) {
-                for (int col = 0; col < gameState.Width; ++col) {
-                    Location newLocation = new Location(row, col);
-                    byte newPosition = newLocation.ToByte();
+                Location enemyHill = new Location(2, 8);
 
-                    if (this.lastStates[newPosition] != null) {
-                        State state = GetState(gameState, newLocation);
+                for (int row = 0; row < gameState.Height; ++row) {
+                    for (int col = 0; col < gameState.Width; ++col) {
+                        Location newLocation = new Location(row, col);
+                        short newPosition = newLocation.ToShort(gameState.Width);
 
-                        foreach (StateAction sa in this.lastStates[newPosition]) {
-                            int oldPosition = sa.State.GetPosition();
-                            Location oldLocation = new Location(oldPosition / 12, oldPosition % 12);
+                        if (this.lastStates[newPosition] != null) {
+                            State state = GetState(gameState, newLocation);
+
+                            foreach (StateAction sa in this.lastStates[newPosition]) {
+                                int oldPosition = sa.State.GetPosition();
+                                Location oldLocation = new Location(oldPosition / gameState.Width, oldPosition % gameState.Width);
 
 
-                            float reward = 0;
+                                float reward = 0;
 
-                            int d1 = gameState.GetDistance(enemyHill, oldLocation);
-                            int d2 = gameState.GetDistance(enemyHill, newLocation);
+                                int d1 = gameState.GetDistance(enemyHill, oldLocation);
+                                int d2 = gameState.GetDistance(enemyHill, newLocation);
 
-                            //positive reward for going more towards the enemy hill and
-                            //negative reward for going away from the enemy hill
-                            //if (d2 != 0)
-                            //    reward += 3.0f * (float)(d1 - d2) / (d2);
+                                //positive reward for going more towards the enemy hill and
+                                //negative reward for going away from the enemy hill
+                                //if (d2 != 0)
+                                //    reward += 3.0f * (float)(d1 - d2) / (d2);
 
-                            //give reward for getting food (more food => higher reward)
-                            reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
+                                //give reward for getting food (more food => higher reward)
+                                reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
 
-                            //negative reward for having more than one ant walking to the same location,
-                            if (this.lastStates[newPosition].Count >= 2) {
+                                //negative reward for having more than one ant walking to the same location,
+                                if (this.lastStates[newPosition].Count >= 2) {
 
-                                //but do not give that penalty when the ant did not move that turn
-                                //(because then that ant did nothing wrong).
-                                if (sa.Action != Action.None) {
-                                    reward += -3.0f;
+                                    //but do not give that penalty when the ant did not move that turn
+                                    //(because then that ant did nothing wrong).
+                                    if (sa.Action != Action.None) {
+                                        reward += -3.0f;
+                                    }
                                 }
-                            }
 
-                            this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
+                                this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
+                            }
                         }
                     }
                 }
@@ -194,16 +195,16 @@ namespace Ants {
         /// <param name="state">The GameState.</param>
         /// <param name="location">The Location from which to generate a state.</param>
         /// <returns>A State object that repressents the current state given the location.</returns>
-        public State GetState(IGameState state, Location location) {
+        public State GetState(IGameState gameState, Location location) {
 
             QTile[] tiles = new QTile[statePositions.Length];
             for (int i = 0; i < statePositions.Length; ++i) {
 
-                Location loc = state.GetDestination(location, statePositions[i]);
-                tiles[i] = state[loc].ToQTile();
+                Location loc = gameState.GetDestination(location, statePositions[i]);
+                tiles[i] = gameState[loc].ToQTile();
             }
 
-            byte position = location.ToByte();
+            short position = location.ToShort(gameState.Width);
 
             return new State(tiles, position);
         }
