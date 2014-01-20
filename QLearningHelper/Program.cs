@@ -15,10 +15,9 @@ namespace QLearningHelper {
             string learnFile = args[0];
             string lastStateFile = args[1];
             string gamelog = args[2];
-            
 
-            float alpha = 0.3f;
-            float gamma = 0.1f;
+            float alpha = float.Parse(args[3]);
+            float gamma = float.Parse(args[4]);
 
             int reward = GetReward(gamelog);
 
@@ -44,8 +43,8 @@ namespace QLearningHelper {
 
 
             //check whether a log file is passed as a parameter
-            if (args.Length > 3) {
-                string log = args[3];
+            if (args.Length > 5) {
+                string log = args[5];
 
                 using(StreamWriter sw = new StreamWriter(log, true)) {
 

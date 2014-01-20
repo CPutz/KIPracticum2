@@ -17,16 +17,16 @@ namespace Ants {
         private float rho;
 
         
-        public MyBot(string learnFile, string lastStateFile) {
+        public MyBot(string learnFile, string lastStateFile, float alpha, float gamma, float rho) {
             this.learnFile = learnFile;
             this.lastStateFile = lastStateFile;
             
             this.learn = new QLearning();
             this.learn.LoadFile(this.learnFile);
 
-            this.alpha = 0.3f;
-            this.gamma = 0.1f;
-            this.rho = 0.1f;
+            this.alpha = alpha;
+            this.gamma = gamma;
+            this.rho = rho;
         }
 
 
@@ -217,7 +217,8 @@ namespace Ants {
             while (!System.Diagnostics.Debugger.IsAttached) { }
 #endif*/
 
-			new Ants().PlayGame(new MyBot(args[0], args[1]));
+			new Ants().PlayGame(new MyBot(args[0], args[1], 
+                float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4])));
 		}
 
 	}
