@@ -109,10 +109,10 @@ namespace QLearningHelper {
             FileStream fs = File.Open(filename, FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
 
-            Hashtable set = this.store.set;
+            Dictionary<State, QSetItem> set = this.store.set;
 
             foreach (State state in set.Keys) {
-                QSetItem item = (QSetItem)set[state];
+                QSetItem item = set[state];
                 
                 bw.Write(state.Value);
 
@@ -141,24 +141,24 @@ namespace QLearningHelper {
     class QValueSet {
 
         //dont want to make this public but is better for saving the file...
-        public Hashtable set;
+        public Dictionary<State, QSetItem> set;
 
         Random random;
 
         public QValueSet() {
-            this.set = new Hashtable();
+            this.set = new Dictionary<State, QSetItem>();
             this.random = new Random();
         }
 
         public float this[State s, Action a] {
             get {
                 if (this.set.ContainsKey(s))
-                    return ((QSetItem)this.set[s])[a];
+                    return this.set[s][a];
                 return 0;
             }
             set {
                 if (this.set.ContainsKey(s)) {
-                    ((QSetItem)this.set[s])[a] = value;
+                    this.set[s][a] = value;
                 } else {
                     QSetItem newItem = new QSetItem();
                     newItem[a] = value;
@@ -187,7 +187,7 @@ namespace QLearningHelper {
 
             if (this.set.ContainsKey(s)) {
                 foreach (Action a in Enum.GetValues(typeof(Action))) {
-                    float Q = ((QSetItem)this.set[s])[a];
+                    float Q = this.set[s][a];
                     if (Q > maxQ) {
                         actions = new List<Action>();
                         maxQ = Q;
