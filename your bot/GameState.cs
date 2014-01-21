@@ -38,8 +38,13 @@ namespace Ants {
 		public Tile this[int row, int col] {
 			get { return this.map[row, col]; }
 		}
+
+        public Tile[,] OldMap { 
+            get { return this.oldMap; }
+        }
 		
 		private Tile[,] map;
+        private Tile[,] oldMap;
 		
 		public GameState (int width, int height, 
 		                  int turntime, int loadtime, 
@@ -69,6 +74,8 @@ namespace Ants {
 					map[row, col] = Tile.Land;
 				}
 			}
+
+            oldMap = new Tile[height, width];
 		}
 
 		#region State mutators
@@ -76,6 +83,13 @@ namespace Ants {
 			// start timer
 			turnStart = DateTime.Now;
 			
+            //save old map data in oldMap
+            for (int row = 0; row < this.Height; row++) {
+                for (int col = 0; col < this.Width; col++) {
+                    oldMap[row, col] = map[row, col];
+                }
+            }
+
 			// clear ant data
 			foreach (Location loc in MyAnts) map[loc.Row, loc.Col] = Tile.Land;
 			foreach (Location loc in MyHills) map[loc.Row, loc.Col] = Tile.Land;

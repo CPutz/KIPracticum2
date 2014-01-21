@@ -89,6 +89,11 @@ namespace Ants {
 		/// </summary>
 		Tile this [int row, int col] { get; }
 
+        /// <summary>
+        /// Gets the <see cref="Tile"/> from the last turn for the row and column.
+        /// </summary>
+        Tile[,] OldMap { get; }
+
 		/// <summary>
 		/// Gets whether <paramref name="location"/> is passable or not.
 		/// </summary>

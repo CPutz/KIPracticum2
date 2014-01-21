@@ -115,7 +115,7 @@ namespace Ants {
         private void ProcessRewards(IGameState gameState) {
             if (this.lastStates != null) {
 
-                Location enemyHill = new Location(2, 8);
+                //Location enemyHill = new Location(2, 8);
 
                 for (int row = 0; row < gameState.Height; ++row) {
                     for (int col = 0; col < gameState.Width; ++col) {
@@ -132,13 +132,15 @@ namespace Ants {
 
                                 float reward = 0;
 
-                                int d1 = gameState.GetDistance(enemyHill, oldLocation);
-                                int d2 = gameState.GetDistance(enemyHill, newLocation);
+                                //int d1 = gameState.GetDistance(enemyHill, oldLocation);
+                                //int d2 = gameState.GetDistance(enemyHill, newLocation);
 
                                 //positive reward for going more towards the enemy hill and
                                 //negative reward for going away from the enemy hill
                                 //if (d2 != 0)
                                 //    reward += 3.0f * (float)(d1 - d2) / (d2);
+
+                               // reward += 1.0f * (d2 - d1);
 
                                 //give reward for getting food (more food => higher reward)
                                 reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
@@ -163,16 +165,17 @@ namespace Ants {
 
 
         /// <summary>
-        /// Gets the number of food there is next to a certain location.
+        /// Gets the number of food there was next to a certain location in the previous turn.
         /// </summary>
         /// <param name="gameState">The GameState.</param>
         /// <param name="location">The Location to check.</param>
-        /// <returns>The number of food next to <paramref name="location"/>.</returns>
+        /// <returns>The number of food next to <paramref name="location"/> in the previous turn.</returns>
         private int NumOfFoodNextTo(IGameState gameState, Location location) {
             int res = 0;
 
             foreach (Direction direction in Enum.GetValues(typeof(Direction))) {
-                if (gameState[gameState.GetDestination(location, direction)] == Tile.Food) {
+                Location checkLocation = gameState.GetDestination(location, direction);
+                if (gameState.OldMap[checkLocation.Row, checkLocation.Col] == Tile.Food) {
                     res++;
                 }
             }
