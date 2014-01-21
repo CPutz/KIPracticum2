@@ -226,7 +226,7 @@ namespace Ants {
 
 
     // The information stored about each tile in a state
-    public enum QTile { Ant, Enemy, Food, None };
+    public enum QTile { Ant, Food, None };
 
     //The tiles that are stored in a state where x is an ant.
     //      9
@@ -239,7 +239,7 @@ namespace Ants {
     struct State {
         public ulong Value { get; private set; }
 
-        public State(QTile[] tiles, short position)
+        public State(QTile[] tiles, ushort position)
             : this() {
             
             this.Value = 0;

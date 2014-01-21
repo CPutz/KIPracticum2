@@ -226,7 +226,7 @@ namespace QLearningHelper {
 
 
     // The information stored about each tile in a state
-    public enum QTile { Ant, Enemy, Food, None };
+    public enum QTile { Ant, Food, None };
 
     //The tiles that are stored in a state where x is an ant.
     //      9
@@ -239,7 +239,7 @@ namespace QLearningHelper {
     struct State {
         public ulong Value { get; private set; }
 
-        public State(QTile[] tiles, short position)
+        public State(QTile[] tiles, ushort position)
             : this() {
             
             this.Value = 0;
@@ -261,7 +261,7 @@ namespace QLearningHelper {
         }
 
         public short GetPosition() {
-            //                                00000000 00000000 11111111 11111111
+            //65535: 00000000 00000000 00000000 00000000 00000000 00000000 11111111 11111111
             return (short)(this.Value & 65535);
         }
     }

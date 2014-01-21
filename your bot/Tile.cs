@@ -9,9 +9,6 @@ namespace Ants {
                 case Tile.Ant:
                     return QTile.Ant;
 
-                case Tile.Enemy:
-                    return QTile.Enemy;
-
                 case Tile.Food:
                     return QTile.Food;
 

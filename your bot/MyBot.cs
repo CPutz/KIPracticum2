@@ -64,7 +64,7 @@ namespace Ants {
                 }
 
 
-                short newPosition = newLoc.ToShort(gameState.Width);
+                ushort newPosition = newLoc.ToUShort(gameState.Width);
 
 
                 if (lastStates[newPosition] == null)
@@ -93,7 +93,7 @@ namespace Ants {
             for (int row = 0; row < gameState.Height; ++row) {
                 for (int col = 0; col < gameState.Width; ++col) {
                     Location location = new Location(row, col);
-                    short position = location.ToShort(gameState.Width);
+                    ushort position = location.ToUShort(gameState.Width);
                     
                     if (this.lastStates[position] != null) {
                         State state = GetState(gameState, location);
@@ -120,7 +120,7 @@ namespace Ants {
                 for (int row = 0; row < gameState.Height; ++row) {
                     for (int col = 0; col < gameState.Width; ++col) {
                         Location newLocation = new Location(row, col);
-                        short newPosition = newLocation.ToShort(gameState.Width);
+                        ushort newPosition = newLocation.ToUShort(gameState.Width);
 
                         if (this.lastStates[newPosition] != null) {
                             State state = GetState(gameState, newLocation);
@@ -207,7 +207,7 @@ namespace Ants {
                 tiles[i] = gameState[loc].ToQTile();
             }
 
-            short position = location.ToShort(gameState.Width);
+            ushort position = location.ToUShort(gameState.Width);
 
             return new State(tiles, position);
         }

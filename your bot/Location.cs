@@ -47,8 +47,8 @@ namespace Ants {
 			}
 		}
 
-        public short ToShort(int width) {
-            return (short)(this.Row * width + this.Col);
+        public ushort ToUShort(int width) {
+            return (ushort)(this.Row * width + this.Col);
         }
 	}
 
