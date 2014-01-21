@@ -115,8 +115,6 @@ namespace Ants {
         private void ProcessRewards(IGameState gameState) {
             if (this.lastStates != null) {
 
-                //Location enemyHill = new Location(2, 8);
-
                 for (int row = 0; row < gameState.Height; ++row) {
                     for (int col = 0; col < gameState.Width; ++col) {
                         Location newLocation = new Location(row, col);
@@ -130,30 +128,7 @@ namespace Ants {
                                 Location oldLocation = new Location(oldPosition / gameState.Width, oldPosition % gameState.Width);
 
 
-                                float reward = 0;
-
-                                //int d1 = gameState.GetDistance(enemyHill, oldLocation);
-                                //int d2 = gameState.GetDistance(enemyHill, newLocation);
-
-                                //positive reward for going more towards the enemy hill and
-                                //negative reward for going away from the enemy hill
-                                //if (d2 != 0)
-                                //    reward += 3.0f * (float)(d1 - d2) / (d2);
-
-                               // reward += 1.0f * (d2 - d1);
-
-                                //give reward for getting food (more food => higher reward)
-                                reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
-
-                                //negative reward for having more than one ant walking to the same location,
-                                if (this.lastStates[newPosition].Count >= 2) {
-
-                                    //but do not give that penalty when the ant did not move that turn
-                                    //(because then that ant did nothing wrong).
-                                    if (sa.Action != Action.None) {
-                                        reward += -3.0f;
-                                    }
-                                }
+                                float reward = GetReward(gameState, oldLocation, sa.Action, newLocation);
 
                                 this.learn.ProcessReward(reward, sa.State, state, sa.Action, this.alpha, this.gamma);
                             }
@@ -161,6 +136,36 @@ namespace Ants {
                     }
                 }
             }
+        }
+
+
+        private float GetReward(IGameState gameState, Location oldLocation, Action a, Location newLocation) {
+            float reward = 0;
+            //Location enemyHill = new Location(2, 8);
+            //int d1 = gameState.GetDistance(enemyHill, oldLocation);
+            //int d2 = gameState.GetDistance(enemyHill, newLocation);
+
+            //positive reward for going more towards the enemy hill and
+            //negative reward for going away from the enemy hill
+            //if (d2 != 0)
+            //    reward += 3.0f * (float)(d1 - d2) / (d2);
+
+            // reward += 1.0f * (d2 - d1);
+
+            //give reward for getting food (more food => higher reward)
+            reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
+
+            //negative reward for having more than one ant walking to the same location,
+            /*if (this.lastStates[newLocation.ToUShort(gameState.Width)].Count >= 2) {
+
+                //but do not give that penalty when the ant did not move that turn
+                //(because then that ant did nothing wrong).
+                if (a != Action.None) {
+                    reward += -3.0f;
+                }
+            }*/
+
+            return reward;
         }
 
 
