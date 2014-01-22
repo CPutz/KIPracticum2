@@ -10,6 +10,8 @@ namespace Ants {
 
         private QLearning learn;
 
+        //for every position on the map, it holds a List that
+        //contains from what state that ant came by doing which action
         private List<StateAction>[] lastStates;
 
         private float alpha;
@@ -39,7 +41,7 @@ namespace Ants {
             this.lastStates = new List<StateAction>[gameState.Width * gameState.Height];
 
 
-			// loop through all my ants and try to give them orders
+			// loop through all my ants and give them orders
             foreach (Ant ant in gameState.MyAnts) {
 
                 State s = GetState(gameState, ant);
@@ -47,7 +49,7 @@ namespace Ants {
 
                 Location newLoc;
                 if (a != Action.None) {
-                    Direction direction = (Direction)a;
+                    Direction direction = a.ToDirection();
 
                     this.IssueOrder(ant, direction);
 
@@ -65,7 +67,6 @@ namespace Ants {
 
 
                 ushort newPosition = newLoc.ToUShort(gameState.Width);
-
 
                 if (lastStates[newPosition] == null)
                     lastStates[newPosition] = new List<StateAction>();
@@ -86,6 +87,10 @@ namespace Ants {
 		}
 
 
+        /// <summary>
+        /// Saves the last state to a file.
+        /// </summary>
+        /// <param name="gameState">The GameState.</param>
         private void SaveLastState(IGameState gameState) {
             FileStream fs = new FileStream(this.lastStateFile, FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
@@ -97,6 +102,11 @@ namespace Ants {
                     
                     if (this.lastStates[position] != null) {
                         State state = GetState(gameState, location);
+
+                        //file format:
+                        //ulong (old state)
+                        //byte (action)
+                        //ulong (new state)
 
                         foreach (StateAction sa in this.lastStates[position]) {
                             bw.Write(sa.State.Value);
@@ -112,11 +122,20 @@ namespace Ants {
         }
 
 
+        /// <summary>
+        /// Uses the lastStates to process the rewards from moves taken in the last turn.
+        /// </summary>
+        /// <param name="gameState">The GameState.</param>
         private void ProcessRewards(IGameState gameState) {
+
+            //make sure the lastStates array is initialized, because it is not in the first turn.
+            //(we cannot initialize it at the start of the turn because we need it then, and we cannot
+            //initialize it before the first turn, because then we do not know the Width and Height of the map)
             if (this.lastStates != null) {
 
                 for (int row = 0; row < gameState.Height; ++row) {
                     for (int col = 0; col < gameState.Width; ++col) {
+                        
                         Location newLocation = new Location(row, col);
                         ushort newPosition = newLocation.ToUShort(gameState.Width);
 
@@ -139,31 +158,53 @@ namespace Ants {
         }
 
 
+        /// <summary>
+        /// Gets the reward by going from <paramref name="oldLocation"/> to <paramref name="newLocation"/>
+        /// by doing some action <paramref name="a"/>.
+        /// </summary>
+        /// <param name="gameState">The GameState.</param>
+        /// <param name="oldLocation">The location before taking the action.</param>
+        /// <param name="a">The action that was taken.</param>
+        /// <param name="newLocation">The location after taking the action.</param>
+        /// <returns>The reward by doing action <paramref name="a"/> from Location 
+        /// <paramref name="oldLocation"/> to get to Location <paramref name="newLocation"/>.</returns>
         private float GetReward(IGameState gameState, Location oldLocation, Action a, Location newLocation) {
+            
             float reward = 0;
-            //Location enemyHill = new Location(2, 8);
-            //int d1 = gameState.GetDistance(enemyHill, oldLocation);
-            //int d2 = gameState.GetDistance(enemyHill, newLocation);
-
+            
             //positive reward for going more towards the enemy hill and
             //negative reward for going away from the enemy hill
-            //if (d2 != 0)
-            //    reward += 3.0f * (float)(d1 - d2) / (d2);
+            /*Location enemyHill = new Location(2, 8);
+             int d1 = gameState.GetDistance(enemyHill, oldLocation);
+             int d2 = gameState.GetDistance(enemyHill, newLocation);
+             reward += 1.0f * (d1 - d2);
+             */
 
-            // reward += 1.0f * (d2 - d1);
+
+            //positive reward for going away from our hill and
+            //negative reward for going more towards our own hill
+            Location ownHill = new Location(3, 9);
+            int d1 = gameState.GetDistance(ownHill, oldLocation);
+            int d2 = gameState.GetDistance(ownHill, newLocation);
+            reward += 1.0f * (d2 - d1);
+            
 
             //give reward for getting food (more food => higher reward)
-            reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
+            /*reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
+             */
+
 
             //negative reward for having more than one ant walking to the same location,
             /*if (this.lastStates[newLocation.ToUShort(gameState.Width)].Count >= 2) {
-
+            
                 //but do not give that penalty when the ant did not move that turn
                 //(because then that ant did nothing wrong).
                 if (a != Action.None) {
                     reward += -3.0f;
                 }
-            }*/
+            }
+             */
+
 
             return reward;
         }
@@ -178,8 +219,10 @@ namespace Ants {
         private int NumOfFoodNextTo(IGameState gameState, Location location) {
             int res = 0;
 
+            //in every direction, check whether there was food in the previous turn
             foreach (Direction direction in Enum.GetValues(typeof(Direction))) {
                 Location checkLocation = gameState.GetDestination(location, direction);
+                
                 if (gameState.OldMap[checkLocation.Row, checkLocation.Col] == Tile.Food) {
                     res++;
                 }
@@ -189,7 +232,12 @@ namespace Ants {
         }
 
 
-
+        //Positions that are saved around an ant x:
+        //      9
+        //    1 2 3
+        // 12 4 x 5 10
+        //    6 7 8
+        //      11
         private Location[] statePositions = new Location[] { new Location(1, -1), new Location(1, 0),
                                                             new Location(1, 1), new Location(0, -1),
                                                             new Location(0, 1), new Location(-1, -1),
@@ -216,6 +264,7 @@ namespace Ants {
 
             return new State(tiles, position);
         }
+
 
 
 

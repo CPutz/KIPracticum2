@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.IO;
 
 namespace Ants {
-    public enum Action { North = 0, South = 1, East = 2, West = 3, None = 4 };
 
     class QLearning {
         QValueSet store;
@@ -70,12 +68,12 @@ namespace Ants {
 
         //file format:
         //1 int (state)
-        //5 floats (5 actions)
+        //5 floats (5 Q-values for the actions)
 
         /// <summary>
         /// Loads a Q-learning file containing Q-values.
         /// </summary>
-        /// <param name="filename">The name of the Q-learning file.</param>
+        /// <param name="filename">The path of the Q-learning file.</param>
         public void LoadFile(string filename) {
 
 
@@ -101,15 +99,19 @@ namespace Ants {
         }
 
 
+        //file format:
+        //1 int (state)
+        //5 floats (5 Q-values for the actions)
+
         /// <summary>
         /// Saves the Q-values stored in store in a file.
         /// </summary>
-        /// <param name="filename">The name of the Q-learning file.</param>
+        /// <param name="filename">The path of the Q-learning file.</param>
         public void SaveFile(string filename) {
             FileStream fs = File.Open(filename, FileMode.Create);
             BinaryWriter bw = new BinaryWriter(fs);
 
-            Dictionary<State, QSetItem> set = this.store.set;
+            Dictionary<State, QSetItem> set = this.store.Set;
 
             foreach (State state in set.Keys) {
                 QSetItem item = set[state];
@@ -137,32 +139,34 @@ namespace Ants {
 
     /// <summary>
     /// A set that contains Q-values.
+    /// It couples a State and QSetItem.
+    /// The QSetItems contain the Q-values associated with each Action.
     /// </summary>
     class QValueSet {
 
-        //dont want to make this public but is better for saving the file...
-        public Dictionary<State, QSetItem> set;
+        public Dictionary<State, QSetItem> Set { get; private set; }
 
-        Random random;
+        private Random random;
+
 
         public QValueSet() {
-            this.set = new Dictionary<State, QSetItem>();
+            this.Set = new Dictionary<State, QSetItem>();
             this.random = new Random();
         }
 
         public float this[State s, Action a] {
             get {
-                if (this.set.ContainsKey(s))
-                    return this.set[s][a];
+                if (this.Set.ContainsKey(s))
+                    return this.Set[s][a];
                 return 0;
             }
             set {
-                if (this.set.ContainsKey(s)) {
-                    this.set[s][a] = value;
+                if (this.Set.ContainsKey(s)) {
+                    this.Set[s][a] = value;
                 } else {
                     QSetItem newItem = new QSetItem();
                     newItem[a] = value;
-                    this.set.Add(s, newItem);
+                    this.Set.Add(s, newItem);
                 }
 
             }
@@ -170,7 +174,7 @@ namespace Ants {
 
 
         public void Add(State s, QSetItem item) {
-            this.set.Add(s, item);
+            this.Set.Add(s, item);
         }
 
 
@@ -183,21 +187,23 @@ namespace Ants {
         public Action GetBestAction(State s) {
             float maxQ = float.MinValue;
             Action result = default(Action);
-            List<Action> actions = new List<Action>();
+            List<Action> bestActions = new List<Action>();
 
-            if (this.set.ContainsKey(s)) {
+            if (this.Set.ContainsKey(s)) {
                 foreach (Action a in Enum.GetValues(typeof(Action))) {
-                    float Q = this.set[s][a];
+                    float Q = this.Set[s][a];
+
                     if (Q > maxQ) {
-                        actions = new List<Action>();
+                        bestActions = new List<Action>();
                         maxQ = Q;
-                        actions.Add(a);
+                        bestActions.Add(a);
                     } else if (Q == maxQ) {
-                        actions.Add(a);
+                        bestActions.Add(a);
                     }
                 }
 
-                result = actions[random.Next(actions.Count)];
+                //pick random action from list of best actions
+                result = bestActions[random.Next(bestActions.Count)];
             } else {
                 result = (Action)random.Next(5);
             }
@@ -225,16 +231,18 @@ namespace Ants {
     }
 
 
+
     // The information stored about each tile in a state
     public enum QTile { Ant, Food, None };
 
-    //The tiles that are stored in a state where x is an ant.
+
+
+    //The positions around an ant x that are stored in a state.
     //      9
     //    1 2 3
     // 12 4 x 5 10
     //    6 7 8
     //      11
-    
 
     struct State {
         public ulong Value { get; private set; }
@@ -261,8 +269,8 @@ namespace Ants {
         }
 
         public short GetPosition() {
-            //65535: 00000000 00000000 00000000 00000000 00000000 00000000 11111111 11111111
-            return (short)(this.Value & 65535);
+            //pick first 16 bits from value (that cantains the position)
+            return (short)(this.Value & 0x000000000000FFFF);
         }
     }
 }

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Action.cs" />
     <Compile Include="Ants.cs" />
     <Compile Include="Bot.cs" />
     <Compile Include="Direction.cs" />
