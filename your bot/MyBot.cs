@@ -274,8 +274,10 @@ namespace Ants {
             while (!System.Diagnostics.Debugger.IsAttached) { }
 #endif*/
 
-			new Ants().PlayGame(new MyBot(args[0], args[1], 
-                float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4])));
+			new Ants().PlayGame(new MyBot(args[0], args[1],
+                float.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture),
+                float.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture),
+                float.Parse(args[4], System.Globalization.CultureInfo.InvariantCulture)));
 		}
 
 	}

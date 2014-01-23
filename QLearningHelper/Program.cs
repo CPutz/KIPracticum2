@@ -16,8 +16,8 @@ namespace QLearningHelper {
             string lastStateFile = args[1];
             string gamelog = args[2];
 
-            float alpha = float.Parse(args[3]);
-            float gamma = float.Parse(args[4]);
+            float alpha = float.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture);
+            float gamma = float.Parse(args[4], System.Globalization.CultureInfo.InvariantCulture);
 
             //initialize Q-Learning
             QLearning learn = new QLearning();
