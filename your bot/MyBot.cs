@@ -169,33 +169,61 @@ namespace Ants {
         /// <returns>The reward by doing action <paramref name="a"/> from Location 
         /// <paramref name="oldLocation"/> to get to Location <paramref name="newLocation"/>.</returns>
         private float GetReward(IGameState gameState, Location oldLocation, Action a, Location newLocation) {
-            
-            float reward = 0;
-            
-            //positive reward for going more towards the enemy hill and
-            //negative reward for going away from the enemy hill
-            /*Location enemyHill = new Location(2, 8);
-             int d1 = gameState.GetDistance(enemyHill, oldLocation);
-             int d2 = gameState.GetDistance(enemyHill, newLocation);
-             reward += 1.0f * (d1 - d2);
-             */
+
+            switch (gameState.Width) {
+                case 12:
+                    return GetReward12(gameState, oldLocation, a, newLocation);
+                case 15:
+                case 20:
+                    return GetReward15And20(gameState, oldLocation, a, newLocation);
+                default:
+                    throw new Exception("Reward not defined for map size: " + gameState.Width + "x" + gameState.Height);
+            }
+
+        }
 
 
-            //positive reward for going away from our hill and
-            //negative reward for going more towards our own hill
-            Location ownHill = new Location(3, 9);
+        /// <summary>
+        /// Gets the reward by going from <paramref name="oldLocation"/> to <paramref name="newLocation"/>
+        /// by doing some action <paramref name="a"/> on a 12x12 map.
+        /// </summary>
+        /// <param name="gameState">The GameState.</param>
+        /// <param name="oldLocation">The location before taking the action.</param>
+        /// <param name="a">The action that was taken.</param>
+        /// <param name="newLocation">The location after taking the action.</param>
+        /// <returns>The reward by doing action <paramref name="a"/> from Location 
+        /// <paramref name="oldLocation"/> to get to Location <paramref name="newLocation"/> for a 12x12 map.</returns>
+        private float GetReward12(IGameState gameState, Location oldLocation, Action a, Location newLocation) {
+
+            Location ownHill = new Location(9, 3);
             int d1 = gameState.GetDistance(ownHill, oldLocation);
             int d2 = gameState.GetDistance(ownHill, newLocation);
-            reward += 1.0f * (d2 - d1);
+            return 1.0f * (d2 - d1);
+
+        }
+
+
+        /// <summary>
+        /// Gets the reward by going from <paramref name="oldLocation"/> to <paramref name="newLocation"/>
+        /// by doing some action <paramref name="a"/> for a 15x15 or 20x20 map.
+        /// </summary>
+        /// <param name="gameState">The GameState.</param>
+        /// <param name="oldLocation">The location before taking the action.</param>
+        /// <param name="a">The action that was taken.</param>
+        /// <param name="newLocation">The location after taking the action.</param>
+        /// <returns>The reward by doing action <paramref name="a"/> from Location 
+        /// <paramref name="oldLocation"/> to get to Location <paramref name="newLocation"/> 
+        /// for a 15x15 and 20x20 map.</returns>
+        private float GetReward15And20(IGameState gameState, Location oldLocation, Action a, Location newLocation) {
             
+            float reward = 0;
 
             //give reward for getting food (more food => higher reward)
-            /*reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
-             */
+            reward += 0.5f * NumOfFoodNextTo(gameState, newLocation);
 
 
             //negative reward for having more than one ant walking to the same location,
-            /*if (this.lastStates[newLocation.ToUShort(gameState.Width)].Count >= 2) {
+            if (this.lastStates[newLocation.ToUShort(gameState.Width)].Count >= 2) {
             
                 //but do not give that penalty when the ant did not move that turn
                 //(because then that ant did nothing wrong).
@@ -203,8 +231,6 @@ namespace Ants {
                     reward += -3.0f;
                 }
             }
-             */
-
 
             return reward;
         }
