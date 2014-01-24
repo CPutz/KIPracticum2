@@ -7,7 +7,7 @@ namespace Ants {
         public static QTile ToQTile(this Tile self) {
             switch (self) {
                 case Tile.Ant:
-                    return QTile.Ant;
+                    return QTile.Friend;
 
                 case Tile.Food:
                     return QTile.Food;

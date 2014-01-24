@@ -233,7 +233,7 @@ namespace Ants {
 
 
     // The information stored about each tile in a state
-    public enum QTile { Ant, Food, None };
+    public enum QTile { Friend, Food, None };
 
 
 
